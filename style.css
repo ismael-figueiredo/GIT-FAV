@@ -113,6 +113,9 @@ table tbody tr{
     background-color: var(--secondary-color);
     padding: 24px 0;
     }
+table tbody tr:nth-child(even){
+    background-color: var(--primary-color);
+}
 .repositories{
     width: 218px;
     text-align: left;
@@ -131,10 +134,16 @@ table tbody tr{
     padding-left:40px ;
     font-weight: 700;
     font-size: 20px;
+    cursor: pointer;
+    transition: transform .1s;
+}
+.acao:hover{
+    transform: scale(1.1);
 }
 
 button{
     color: var(--danger-color);
+   
     background-color: transparent;
 }
 #bg-button{
