@@ -129,7 +129,7 @@ table tbody tr:nth-child(even){
     padding-left:40px ;
     font-weight: 700;
 }
-.acao{
+.acao, .acao1{
     text-align: left;
     padding-left:40px ;
     font-weight: 700;

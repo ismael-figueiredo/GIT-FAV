@@ -1,10 +1,10 @@
 export class GithubUser {
-    static seaarch(username){
-        const endpiont = `https;//api.github.com/users/${username}`
+    static search(username){
+        const endpoint = `https://api.github.com/users/${username}`
 
-        return fetch(endpiont)
-        .them(data => data.JSON())
-        .them(({login, name, public_repos, followers}) => ({
+        return fetch(endpoint)
+        .then(data => data.json())
+        .then(({login, name, public_repos, followers}) => ({
             login,
             name,
             public_repos,
@@ -21,32 +21,47 @@ export class Favorites{
         
     }
     load(){
-        const entries = JSON.parse(localStorage.getItem
+        this.entries = JSON.parse(localStorage.getItem
             ('@girhub-favorites:')) || []
 
-        this.entries = [   
-            {
-                login: 'ismael-figueiredo',
-                name: 'Ismael fogueiredo',
-                public_repos: '75',
-                follower:'400'
-            },
-            {
-                login: 'maykbrito',
-                name: 'mayk brito',
-                public_repos: '75',
-                follower:'40010'
-            }
-        ]
+
     }
 
-    async add(username){
-        const user = await GithubUser.seaarch(username)
+    save( ){
+        localStorage.setItem('@girhub-favorites:', JSON.stringify(this.entries))
     }
-    delete(user){
-        const filteredEntries = this.entries.filter(entry =>{
-            entry.login !== user.login
-        })
+
+    async add(username) {
+        try {
+
+            const userExists = this.entries.find(entry => entry.login === username)
+
+            if(userExists){
+                throw new Error('Usuário já cadastrado')
+            }
+
+
+
+            const user = await GithubUser.search(username)
+
+            if(user.login === undefined) {
+                throw new Error('Usuário não encontrado!')
+            }
+            this.entries = [user, ...this.entries]
+            this.update()
+            this.save()
+            } catch(error) {
+                alert(error.message)
+            }        
+    }
+
+
+    delete(user) {
+        const filteredEntries = this.entries.filter(entry => entry.login !== user.login)
+
+        this.entries = filteredEntries
+        this.update()
+        this.save()
     }
 
 }
@@ -62,10 +77,11 @@ export class FavoritesView extends Favorites {
     }
 
     onAdd(){
-        const addButton = document.querySelector('#star-button')
-        addButton.onclick = () =>{
-            const { value} = document.querySelector('#input-search')
-            console.log(value)
+        const addButton = this.root.querySelector('#search-button')
+        addButton.onclick = () => {
+            const { value } = this.root.querySelector('#input-search')
+           
+            this.add(value)
         }
     }
 
@@ -79,21 +95,25 @@ export class FavoritesView extends Favorites {
             row.querySelector('.user p').textContent = user.name 
             row.querySelector('.user span').textContent = `/${user.login}`
             row.querySelector('.repositories').textContent = user.public_repos
-            row.querySelector('.followers').textContent = user.follower
+            row.querySelector('.followers').textContent = user.followers
             row.querySelector('.acao').onclick = () => {
-                confirm("Tem certeza que deseja deletar esta linha?")
+                const isOk = confirm("Tem certeza que deseja deletar esta linha?")
+
+                if(isOk) {
+                    this.delete(user)
+                }
             }
             this.tbody.append(row)
+            
     } )
     
     
     }
 
-    removeAllTr(){
-       
+    removeAllTr() {
         this.tbody.querySelectorAll('tr').forEach((tr) => {
             tr.remove()
-        })
+        });
     }
 
     createRow() {
